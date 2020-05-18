@@ -4,7 +4,8 @@
 * Intel Realsense SDK2.0
 ## 1. Package: img_publisher
 img_publisher包主要功能是通过D435驱动接收相机数据，将深度图和RGB图对齐后，使用cv_bridge将图像信息转换为ROS消息，然后建立节点并发送话题。同时，生成当前相机坐标系下的点云数据并发送话题。其中代码主体部分位于[publisher.cpp](src/img_publisher/src/publisher.cpp)文件中。以下是具体的代码实现：
-### 1.1 函数、参数的声明及初始化
+### 1.1 前期准备部分
+#### 1.1.1 函数、参数的声明及初始化
 在进入main函数之前，声明函数、初始化变量；定义常量；定义点云类型。
 ```
     // 相机图像接收频率
@@ -22,7 +23,7 @@ img_publisher包主要功能是通过D435驱动接收相机数据，将深度图
     float m_invalid_depth_value_ = 0.0;
     float m_max_z_ = 8.0;
 ```
-#### 1.1.1 相机管道配置以及深度图像向RGB图像的对齐
+#### 1.1.2 相机管道配置以及深度图像向RGB图像的对齐
 在realsense SDK2.0中，是通过管道获取相机的RGB帧和深度帧。所以初始化时，我们配置了两个数据流——16位单通道的深度数据流和8位三通道的RGB数据流，以及30Hz的接收频率。
 ```
     // 创建一个管道以及管道的参数变量
@@ -47,7 +48,7 @@ img_publisher包主要功能是通过D435驱动接收相机数据，将深度图
     //rs2::align 允许我们去实现深度图像对齐其他图像
     rs2::align align(align_to);
 ```
-#### 1.1.2 相机内参、外参的获取
+#### 1.1.3 相机内参、外参的获取
 在realsense2中，有直接获取相机内参外参的接口：
 
 ```
@@ -65,7 +66,7 @@ img_publisher包主要功能是通过D435驱动接收相机数据，将深度图
     auto color_width_ = m_color_intrinsics_.width;
     auto color_height_ = m_color_intrinsics_.height;
 ```
-#### 1.1.3 ROS相关的配置
+#### 1.1.4 ROS相关的配置
 ```
     ros::init(argc, argv, "image_publisher");
 
@@ -84,6 +85,8 @@ img_publisher包主要功能是通过D435驱动接收相机数据，将深度图
     sensor_msgs::PointCloud2 msg_pointcloud;
 ```
 ### 1.2 主要功能实现
+由于需要实时持续获取相机数据，我们将主要功能代码写在无限的while循环里面。当节点关闭时跳出循环。
+#### 1.2.1 
 
 ## 附录
 * [ORB-SLAM2稠密点云重建:RGBD室内](https://blog.csdn.net/qq_41524721/article/details/79126062)
