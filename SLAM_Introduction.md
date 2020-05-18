@@ -234,13 +234,24 @@ RGB图和深度图示例：
 ![image](https://github.com/DongMugua/TRY/blob/master/Imgae/PointCloud.png)
 ### 1.3 结果分析
 ![image](https://github.com/DongMugua/TRY/blob/master/Imgae/rqt_graph_publisher.png)
+
 到此为止，我们便创建了publisher节点并把RGB图、深度图和点云图发布到ROS话题中以提供订阅。目前为止还没有对相机进行标定，所以发布的图像并不是非常的精确。
+
+## 2. Package: SLAM
+本程序主要为ROS环境下的ORB-SLAM2的应用。
+### 2.1 ros_rgbd.cc
+### 2.2 参数配置(rgbd.yaml)
+### 2.3 点云 八叉树转换
+
 ## 附录
+### 1. Package: img_publisher
 * [ORB-SLAM2稠密点云重建:RGBD室内](https://blog.csdn.net/qq_41524721/article/details/79126062)
 * [realsense_camera.cpp](https://github.com/abhishek098/realsense_camera_wrapper/blob/master/src/realsense_camera_wrapper/realsense_camera.cpp)
 * [Sample Code for Intel® RealSense™ cameras](https://dev.intelrealsense.com/docs/code-samples)
 * [realsense SDK2.0学习：：（一）读取D435视频【彩色&&深度】](https://blog.csdn.net/dieju8330/article/details/85272800)
 * [realsense SDK2.0学习：：（二）D435深度图片对齐到彩色图片-SDK实现](https://blog.csdn.net/dieju8330/article/details/85272919?utm_medium=distribute.pc_relevant.none-task-blog-baidujs-2)
+### 2. Package: SLAM
+* [gaoxiang12/octomap_tutor](https://github.com/gaoxiang12/octomap_tutor)
 ## Q
 1. realsense1和realsense2区别
 2. realsense2直接获取相机内参？
