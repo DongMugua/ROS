@@ -20,13 +20,13 @@ float get_depth_scale(rs2::device dev);
 bool profile_changed(const std::vector<rs2::stream_profile>& current, const std::vector<rs2::stream_profile>& prev);
 ```
 ### 1.2 相机管道配置
-在realsense SDK2.0中，
+<!-- 在realsense SDK2.0中，是通过管道获取相机的色彩帧和深度帧。所以初始化时，我们将 -->
 ```
     // 创建一个管道以及管道的参数变量
     rs2::pipeline pipe;
     rs2::config p_config;
 
-    //配置管道以及启动相机
+    <!-- 配置管道以及启动相机 -->
     p_config.enable_stream(RS2_STREAM_DEPTH, 640, 480, RS2_FORMAT_Z16, FPS);
     p_config.enable_stream(RS2_STREAM_COLOR, 640, 480, RS2_FORMAT_RGB8, FPS);
     p_config.enable_stream(RS2_STREAM_INFRARED, 640, 480, RS2_FORMAT_Y8, FPS);
@@ -34,7 +34,7 @@ bool profile_changed(const std::vector<rs2::stream_profile>& current, const std:
 ```
 ## 附录
 * [ORB-SLAM2稠密点云重建:RGBD室内[0]](https://blog.csdn.net/qq_41524721/article/details/79126062)
-* https://dev.intelrealsense.com/docs/code-samples
-* https://dev.intelrealsense.com/docs/rs-hello-realsense
-* https://github.com/IntelRealSense/librealsense/blob/master/examples/hello-realsense/rs-hello-realsense.cpp
-* https://blog.csdn.net/dieju8330/article/details/85272800
+* [Sample Code for Intel® RealSense™ cameras](https://dev.intelrealsense.com/docs/code-samples)
+* [rs-hello-realsense.cpp](https://github.com/IntelRealSense/librealsense/blob/master/examples/hello-realsense/rs-hello-realsense.cpp)
+* [realsense SDK2.0学习：：（一）读取D435视频【彩色&&深度】](https://blog.csdn.net/dieju8330/article/details/85272800)
+* [realsense SDK2.0学习：：（二）D435深度图片对齐到彩色图片-SDK实现](https://blog.csdn.net/dieju8330/article/details/85272919?utm_medium=distribute.pc_relevant.none-task-blog-baidujs-2)
