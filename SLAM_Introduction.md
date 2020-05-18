@@ -32,3 +32,9 @@ bool profile_changed(const std::vector<rs2::stream_profile>& current, const std:
     p_config.enable_stream(RS2_STREAM_INFRARED, 640, 480, RS2_FORMAT_Y8, FPS);
     rs2::pipeline_profile profile = pipe.start(p_config);
 ```
+## 附录
+* [ORB-SLAM2稠密点云重建:RGBD室内[0]](https://blog.csdn.net/qq_41524721/article/details/79126062)
+* https://dev.intelrealsense.com/docs/code-samples
+* https://dev.intelrealsense.com/docs/rs-hello-realsense
+* https://github.com/IntelRealSense/librealsense/blob/master/examples/hello-realsense/rs-hello-realsense.cpp
+* https://blog.csdn.net/dieju8330/article/details/85272800
