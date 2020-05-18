@@ -139,8 +139,10 @@ img_publisher包主要功能是通过D435驱动接收相机数据，将深度图
     depthPub.publish(depthMsg);
 
 ```
+RGB图和深度图示例：
 ![image](https://github.com/DongMugua/TRY/blob/master/Imgae/RGB%20%26%20Depth.png)
-![Image discription](RGB图和深度图示例)
+
+
 #### 1.2.3 点云图像发布
 点云图像是基于函数rs2_deproject_pixel_to_point()生成的。其中运用了针孔相机成像的转换矩阵。在位置坐标赋值之后，又将相对应的颜色坐标赋值到对应的点上，从而能够得到彩色的点云图。
 ```
