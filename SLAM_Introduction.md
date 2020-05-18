@@ -86,7 +86,41 @@ img_publisher包主要功能是通过D435驱动接收相机数据，将深度图
 ```
 ### 1.2 主要功能实现
 由于需要实时持续获取相机数据，我们将主要功能代码写在无限的while循环里面。当节点关闭时跳出循环。
-#### 1.2.1 
+#### 1.2.1 帧的获取以及深度帧的对齐
+当有图像帧来时，wait_for_frames()函数返回图像帧到**frameset**变量中，之后我们分别获取RGB图像帧和深度图像帧。在判断过摄像头数据管道设置没有改变之后，利用**align**将深度图像对齐到RGB图像上面并且得到对齐之后的**processed**变量。*注意，如果此时加上apply_filter(rs2::colorizer c)色彩滤波器，在RVIZ中可以看到彩色的深度图像，但是如果将此图像作为消息发布到RGB-D中，将无法处理数据得到理想的点云图。*
+```
+    rs2::frameset frameset = pipe.wait_for_frames();
+
+    const rs2::frame &color_frame = frameset.get_color_frame();
+    const rs2::frame &depth_frame = frameset.get_depth_frame();
+
+    auto color_format_ = color_frame.as<rs2::video_frame>().get_profile().format();
+    auto swap_rgb_ = color_format_ == RS2_FORMAT_BGR8 || color_format_ == RS2_FORMAT_BGRA8;
+    auto nb_color_pixel_ = (color_format_ == RS2_FORMAT_RGB8 || color_format_ == RS2_FORMAT_BGR8) ? 3 : 4;
+
+    // 因为rs2::align 正在对齐深度图像到其他图像流，我们要确保对齐的图像流不发生改变
+    if (profile_changed(pipe.get_active_profile().get_streams(), profile.get_streams()))
+    {
+        std::cout<<"changed?"<<std::endl;
+        //如果profile发生改变，则更新align对象，重新获取深度图像像素到长度单位的转换比例
+        profile = pipe.get_active_profile();
+        align = rs2::align(align_to);
+        depth_scale = get_depth_scale(profile.get_device());
+    }
+
+    // 获取对齐后的帧
+    rs2::frameset processed = align.process(frameset);
+
+    // 尝试获取对齐后的深度图像帧和其他帧
+    rs2::frame aligned_color_frame = processed.get_color_frame();
+    rs2::frame aligned_depth_frame = processed.get_depth_frame(); // apply_filter(c)
+
+    // 获取图像的宽高
+    const int depth_w = aligned_depth_frame.as<rs2::video_frame>().get_width();
+    const int depth_h = aligned_depth_frame.as<rs2::video_frame>().get_height();
+    const int color_w = aligned_color_frame.as<rs2::video_frame>().get_width();
+    const int color_h = aligned_color_frame.as<rs2::video_frame>().get_height();
+```
 
 ## 附录
 * [ORB-SLAM2稠密点云重建:RGBD室内](https://blog.csdn.net/qq_41524721/article/details/79126062)
