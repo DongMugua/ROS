@@ -234,6 +234,7 @@ RGB图和深度图示例：
 ![image](https://github.com/DongMugua/TRY/blob/master/Imgae/PointCloud.png)
 ### 1.3 结果分析
 ![image](https://github.com/DongMugua/TRY/blob/master/Imgae/rqt_graph_publisher.png)
+
 到此为止，我们便创建了publisher节点并把RGB图、深度图和点云图发布到ROS话题中以提供订阅。目前为止还没有对相机进行标定，所以发布的图像并不是非常的精确。
 ## 附录
 * [ORB-SLAM2稠密点云重建:RGBD室内](https://blog.csdn.net/qq_41524721/article/details/79126062)
