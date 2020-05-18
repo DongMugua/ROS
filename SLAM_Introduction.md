@@ -85,10 +85,10 @@ img_publisher包主要功能是通过D435驱动接收相机数据，将深度图
     sensor_msgs::PointCloud2 msg_pointcloud;
 ```
 ### 1.2 主要功能实现
-由于需要实时持续获取相机数据，我们将主要功能代码写在无限的while循环里面。当节点关闭时跳出循环。
+由于需要实时持续获取相机数据，我们将主要功能代码写在的while循环中。只有当节点关闭时跳出循环。
 #### 1.2.1 帧的获取以及深度帧的对齐
 当有图像帧被接受时，wait_for_frames()函数返回图像帧到**frameset**变量中，之后我们分别获取RGB图像帧和深度图像帧。在判断过摄像头数据管道设置没有改变之后，利用**align**将深度图像对齐到RGB图像上面并且得到对齐之后的**processed**变量。
-*注意，如果此时加上apply_filter(rs2::colorizer c)色彩滤波器，在RVIZ中可以看到彩色的深度图像，但是如果将此图像作为消息发布到RGB-D中，将无法处理数据得到理想的点云图。*
+*注意，如果此时加上apply_filter(rs2::colorizer c)色彩滤波器，在RVIZ中可以直接看到彩色的深度图像，但是如果将此图像作为ROS消息传送到RGB-D后，无法得到理想的点云图。*
 ```
     rs2::frameset frameset = pipe.wait_for_frames();
 
@@ -122,14 +122,117 @@ img_publisher包主要功能是通过D435驱动接收相机数据，将深度图
     const int color_w = aligned_color_frame.as<rs2::video_frame>().get_width();
     const int color_h = aligned_color_frame.as<rs2::video_frame>().get_height();
 ```
+#### 1.2.2 RGB、深度图像消息发布
+发布时，RGB图像为8位3通道(CV_8UC3)，名为**rgb8**,深度图像为16位单通道(CV_16UC1),名为**16UC1**。
+```
+    // 获取时间戳
+    imgHeader.stamp = ros::Time::now();
 
+    // RGB图像
+    cv::Mat aligned_color_image(cv::Size(color_w,color_h), CV_8UC3, (void*)aligned_color_frame.get_data(), cv::Mat::AUTO_STEP);
+    rgbMsg = cv_bridge::CvImage(imgHeader, "rgb8", aligned_color_image).toImageMsg();
+    rgbPub.publish(rgbMsg);
+    
+    // 深度图像
+    cv::Mat aligned_depth_image(cv::Size(depth_w,depth_h), CV_16UC1, (void*)aligned_depth_frame.get_data(), cv::Mat::AUTO_STEP);
+    depthMsg = cv_bridge::CvImage(imgHeader, "16UC1", aligned_depth_image).toImageMsg();
+    depthPub.publish(depthMsg);
+
+```
+![image](https://github.com/DongMugua/TRY/blob/master/Imgae/RGB%20%26%20Depth.png)
+#### 1.2.3 点云图像发布
+点云图像是基于函数rs2_deproject_pixel_to_point()生成的。其中运用了针孔相机成像的转换矩阵。在位置坐标赋值之后，又将相对应的颜色坐标赋值到对应的点上，从而能够得到彩色的点云图。
+```
+    // 点云
+    rs2::video_frame vf = aligned_depth_frame.as<rs2::video_frame>();
+
+    const int width = vf.get_width();
+    const int height = vf.get_height();
+    pointcloud_->width = (uint32_t)width;
+    pointcloud_->height = (uint32_t)height;
+    pointcloud_->resize((size_t)(width * height));
+
+    const uint16_t *p_depth_frame = reinterpret_cast<const uint16_t *>(aligned_depth_frame.get_data());
+    const unsigned char *p_color_frame = reinterpret_cast<const unsigned char *>(aligned_color_frame.get_data());
+
+    for (int i = 0; i < height; i++)
+    {
+        auto depth_pixel_index = i * width;
+        for (int j = 0; j < width; j++, depth_pixel_index++)
+        {
+            if (p_depth_frame[depth_pixel_index] == 0)
+            {
+                pointcloud_->points[(size_t)depth_pixel_index].x = m_invalid_depth_value_;
+                pointcloud_->points[(size_t)depth_pixel_index].y = m_invalid_depth_value_;
+                pointcloud_->points[(size_t)depth_pixel_index].z = m_invalid_depth_value_;
+            }
+
+            // Get the depth value of the current pixel
+            auto pixels_distance =  depth_scale *p_depth_frame[depth_pixel_index];
+            float depth_point[3];
+            const float pixel[] = {(float)j, (float)i};
+
+            rs2_deproject_pixel_to_point(depth_point, &m_depth_intrinsics_, pixel, pixels_distance);
+            
+            if (pixels_distance > m_max_z_)
+                depth_point[0] = depth_point[1] = depth_point[2] = m_invalid_depth_value_;
+
+            pointcloud_->points[(size_t)depth_pixel_index].x = depth_point[2];
+            pointcloud_->points[(size_t)depth_pixel_index].y = -depth_point[0];
+            pointcloud_->points[(size_t)depth_pixel_index].z = -depth_point[1];
+
+            float color_point[3];
+            rs2_transform_point_to_point(color_point, &m_depth_2_color_extrinsics_, depth_point);
+            float color_pixel[2];
+            rs2_project_point_to_pixel(color_pixel, &m_color_intrinsics_, color_point);
+
+            if (color_pixel[1] < 0 || color_pixel[1] >= color_height_ || color_pixel[0] < 0 || color_pixel[0] >= color_width_)
+            {
+                pointcloud_->points[(size_t)depth_pixel_index].x = m_invalid_depth_value_;
+                pointcloud_->points[(size_t)depth_pixel_index].y = m_invalid_depth_value_;
+                pointcloud_->points[(size_t)depth_pixel_index].z = m_invalid_depth_value_;
+            }
+            else
+            {
+                unsigned int i_ = (unsigned int)color_pixel[1];
+                unsigned int j_ = (unsigned int)color_pixel[0];
+                if (swap_rgb_)
+                {
+                    pointcloud_->points[(size_t)depth_pixel_index].b =
+                        (uint32_t)p_color_frame[(i_ * (unsigned int)color_width_ + j_) * nb_color_pixel_];
+                    pointcloud_->points[(size_t)depth_pixel_index].g =
+                        (uint32_t)p_color_frame[(i_ * (unsigned int)color_width_ + j_) * nb_color_pixel_ + 1];
+                    pointcloud_->points[(size_t)depth_pixel_index].r =
+                        (uint32_t)p_color_frame[(i_ * (unsigned int)color_width_ + j_) * nb_color_pixel_ + 2];
+                }
+                else
+                {
+                    pointcloud_->points[(size_t)depth_pixel_index].r =
+                        (uint32_t)p_color_frame[(i_ * (unsigned int)color_width_ + j_) * nb_color_pixel_];
+                    pointcloud_->points[(size_t)depth_pixel_index].g =
+                        (uint32_t)p_color_frame[(i_ * (unsigned int)color_width_ + j_) * nb_color_pixel_ + 1];
+                    pointcloud_->points[(size_t)depth_pixel_index].b =
+                        (uint32_t)p_color_frame[(i_ * (unsigned int)color_width_ + j_) * nb_color_pixel_ + 2];
+                }
+
+            }
+        }
+    }
+    pcl::toROSMsg(*pointcloud_, msg_pointcloud);
+    msg_pointcloud.header.stamp = imgHeader.stamp;
+    msg_pointcloud.is_dense = true;
+    msg_pointcloud.header.frame_id = "map";
+
+    pointcloud_publisher_.publish(msg_pointcloud);
+    pointcloud_ ->clear();
+    ros::spinOnce();
+```
 ## 附录
 * [ORB-SLAM2稠密点云重建:RGBD室内](https://blog.csdn.net/qq_41524721/article/details/79126062)
+* [realsense_camera.cpp](https://github.com/abhishek098/realsense_camera_wrapper/blob/master/src/realsense_camera_wrapper/realsense_camera.cpp)
 * [Sample Code for Intel® RealSense™ cameras](https://dev.intelrealsense.com/docs/code-samples)
-* [rs-hello-realsense.cpp](https://github.com/IntelRealSense/librealsense/blob/master/examples/hello-realsense/rs-hello-realsense.cpp)
 * [realsense SDK2.0学习：：（一）读取D435视频【彩色&&深度】](https://blog.csdn.net/dieju8330/article/details/85272800)
 * [realsense SDK2.0学习：：（二）D435深度图片对齐到彩色图片-SDK实现](https://blog.csdn.net/dieju8330/article/details/85272919?utm_medium=distribute.pc_relevant.none-task-blog-baidujs-2)
-
 ## Q
 1. realsense1和realsense2区别
 2. realsense2直接获取相机内参？
