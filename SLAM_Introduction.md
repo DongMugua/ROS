@@ -2,9 +2,11 @@
 * ubuntu 16.04 LTS
 * Intel® Core™ i7-5500U CPU @ 2.40GHz × 4 
 * Intel Realsense SDK2.0
+[toc]
 ## 1. Package: img_publisher
 img_publisher包主要功能是通过D435驱动接收相机数据，将深度图和RGB图对齐后，使用cv_bridge将图像信息转换为ROS消息，然后建立节点并发送话题。同时，生成当前相机坐标系下的点云数据并发送话题。其中代码主体部分位于[publisher.cpp](src/img_publisher/src/publisher.cpp)文件中。以下是具体的代码实现：
-### 1.1 前期准备部分
+### 1.1 初始化和配置
+在主要功能实现之前，我们进行了函数、变量的初始化，相机的配置以及和ROS相关的配置。
 #### 1.1.1 函数、参数的声明及初始化
 在进入main函数之前，声明函数、初始化变量；定义常量；定义点云类型。
 ```
@@ -141,8 +143,6 @@ img_publisher包主要功能是通过D435驱动接收相机数据，将深度图
 ```
 RGB图和深度图示例：
 ![image](https://github.com/DongMugua/TRY/blob/master/Imgae/RGB%20%26%20Depth.png)
-
-
 #### 1.2.3 点云图像发布
 点云图像是基于函数rs2_deproject_pixel_to_point()生成的。其中运用了针孔相机成像的转换矩阵。在位置坐标赋值之后，又将相对应的颜色坐标赋值到对应的点上，从而能够得到彩色的点云图。
 ```
@@ -230,6 +230,12 @@ RGB图和深度图示例：
     pointcloud_ ->clear();
     ros::spinOnce();
 ```
+点云图示例：
+![image](https://github.com/DongMugua/TRY/blob/master/Imgae/PointCloud.png)
+### 1.3 结果分析
+#### 1.3.1 ROS节点图
+![image](https://github.com/DongMugua/TRY/blob/master/Imgae/rqt_graph_publisher.png）
+到此为止，我们便创建了publisher节点并发布了
 ## 附录
 * [ORB-SLAM2稠密点云重建:RGBD室内](https://blog.csdn.net/qq_41524721/article/details/79126062)
 * [realsense_camera.cpp](https://github.com/abhishek098/realsense_camera_wrapper/blob/master/src/realsense_camera_wrapper/realsense_camera.cpp)
