@@ -1,0 +1,4 @@
+string str
+---
+string data
+uint32 poseQueueSize

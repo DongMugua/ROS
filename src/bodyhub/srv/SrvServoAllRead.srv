@@ -1,0 +1,4 @@
+uint8[] idArray
+uint8 idCnt
+---
+float64[] getData

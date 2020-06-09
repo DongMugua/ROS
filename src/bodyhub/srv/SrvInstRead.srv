@@ -1,0 +1,4 @@
+string itemName
+uint8 dxlID
+---
+float64 getData

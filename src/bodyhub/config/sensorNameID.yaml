@@ -1,0 +1,10 @@
+sensorNameID:
+  baseBoard: 200
+  illuminance: 100
+  humiture: 101
+  infrared: 102
+  color: 103
+  fire: 104
+  fan: 105
+  gas: 106
+  touch: 107
