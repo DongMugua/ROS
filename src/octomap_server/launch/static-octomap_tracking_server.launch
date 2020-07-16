@@ -10,7 +10,7 @@
 		<param name="sensor_model/max_range" value="1.9" />
 		<param name="save_directory" value="$(optenv OCTOMAP_SAVE_DIR ./)" />
 		<param name="occupancy_max_z" value="0.11"/>
-		<param name="occupancy_min_z" value="-0.41"/>
+		<param name="occupancy_min_z" value="-0.15"/>
 		<param name="track_changes" value="true"/>
 		<param name="listen_changes" value="false"/>
 		<param name="topic_changes" value="/octomap_tracking_server/changeset" />

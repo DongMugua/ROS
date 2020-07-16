@@ -25,7 +25,7 @@
 #include<chrono>
 
 #include<opencv2/core/core.hpp>
-
+#include"Observer.h"
 #include<System.h>
 
 using namespace std;

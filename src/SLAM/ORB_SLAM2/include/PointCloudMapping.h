@@ -42,6 +42,20 @@ public:
     void insertKeyFrame( KeyFrame* kf, cv::Mat& color, cv::Mat& depth );
     void shutdown();
     void viewer();
+
+    // 观察器：
+    // 获取新的关键帧函数
+    void insertKF(KeyFrame *kf, cv::Mat &color, cv::Mat &depth);
+    // 获取关键帧对应的点云地图，并将新旧地图叠加
+    void generatepcl(KeyFrame *kf, cv::Mat &color, cv::Mat &depth);
+
+    PointCloud::Ptr Getglobalmap()
+    {
+        unique_lock<mutex> locker(generation);
+        return globalMapS;
+    }
+
+    void setcurrentCamera(cv::Mat Rwc, cv::Mat twc);
     
 protected:
     PointCloud::Ptr generatePointCloud(KeyFrame* kf, cv::Mat& color, cv::Mat& depth);
@@ -65,6 +79,20 @@ protected:
     double resolution = 0.01;
     pcl::VoxelGrid<PointT>  voxel;
     pcl::StatisticalOutlierRemoval<PointT> sor; // 创建滤波器对象
+
+    // 观察器
+    mutex generation;
+    vector<cv::Mat> rgbs;
+    vector<cv::Mat> depthes;
+    vector<KeyFrame *> kfs;
+
+    PointCloud::Ptr globalMapS;
+
+    Eigen::Vector3d kfplace;
+    // 使用PCLVisualizer对象来显示地图
+    // pcl::visualization::PCLVisualizer showcamera;
+    Eigen::Vector3d currentcamera;
+    cv::Mat currentTwc;
 
 };
 

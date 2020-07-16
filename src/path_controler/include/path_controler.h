@@ -7,12 +7,13 @@
 #include <std_msgs/Bool.h>
 #include <nav_msgs/Path.h>
 
+#include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <Eigen/Dense>  
 #include <math.h>  
 using namespace std;
 
-int countCommand=20;
+//int countCommand=20;
 
 ros::Publisher path_controler_pub;
-ros::Subscriber req_path_controler_sub;
+ros::Subscriber req_path_controler_sub,start_sub_;
 ros::Subscriber path_sub;

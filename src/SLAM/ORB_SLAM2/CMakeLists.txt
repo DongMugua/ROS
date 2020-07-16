@@ -43,7 +43,7 @@ ${PROJECT_SOURCE_DIR}/include
 ${EIGEN3_INCLUDE_DIR}
 ${Pangolin_INCLUDE_DIRS}
 ${PCL_INCLUDE_DIRS}
-/home/sunhao/slamNew/src/SLAM/ORB_SLAM2/include
+/home/sunhao/slamNew/src/SLAM/ORB_SLAM2/include/Observer.h
 )
 
 #set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
@@ -72,6 +72,7 @@ src/Sim3Solver.cc
 src/Initializer.cc
 src/Viewer.cc
 src/PointCloudMapping.cc
+src/Observer.cc
 )
 
 target_link_libraries(${PROJECT_NAME}

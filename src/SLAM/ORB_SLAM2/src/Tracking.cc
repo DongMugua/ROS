@@ -32,7 +32,7 @@
 
 #include"Optimizer.h"
 #include"PnPsolver.h"
-
+#include"Observer.h"
 #include<iostream>
 
 #include<mutex>
@@ -150,6 +150,7 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
         else
             mDepthMapFactor = 1.0f/mDepthMapFactor;
     }
+    // pointmapping = mpSystem->getMyPclMapping();
 
 }
 
@@ -1207,7 +1208,7 @@ void Tracking::CreateNewKeyFrame()
     mpLocalMapper->SetNotStop(false);
 
     mpPointCloudMapping->insertKeyFrame( pKF, this->mImRGB, this->mImDepth );
-
+    mpPointCloudMapping->insertKF(pKF, this->mImRGB, this->mImDepth);
     mnLastKeyFrameId = mCurrentFrame.mnId;
     mpLastKeyFrame = pKF;
 }

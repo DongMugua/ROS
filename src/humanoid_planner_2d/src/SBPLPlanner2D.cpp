@@ -31,7 +31,7 @@
 
 SBPLPlanner2D::SBPLPlanner2D()
     : nh_(),
-    robot_radius_(0.1),
+    robot_radius_(0.12),
     start_received_(false), goal_received_(false),
     path_costs_(0.0)
 {
@@ -230,7 +230,7 @@ bool SBPLPlanner2D::updateMap(gridmap_2d::GridMap2DPtr map){
 
     const uint32_t mapHeight = map_->getInfo().height;
     const uint32_t mapWidth = map_->getInfo().width;
-    const int SHADOW_RADIUS = 8;
+    const int SHADOW_RADIUS = 2;
     unsigned char** GridLocal;
 
     GridLocal = new unsigned char*[mapWidth];

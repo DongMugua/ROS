@@ -1,11 +1,26 @@
 roscore
 
+sudo /sbin/ifconfig enp0s25 down
+sudo /sbin/ifconfig enp0s25 hw ether 08:ed:b9:c6:d2:b9
+sudo /sbin/ifconfig enp0s25 up
+
 ./vrep.sh
 
-source devel_isolated/bodyhub/setup.bash
+source devel_isolated/setup.bash
 roslaunch bodyhub bodyhub.launch sim:=true
 
 source devel_isolated/bodyhub/setup.bash
+rosservice call /MediumSize/BodyHub/StateJump 6 setStatus
+
+source devel_isolated/bodyhub/setup.bash
+rosservice call /MediumSize/BodyHub/StateJump 6 walking
+
+source devel_isolated/gait_command/setup.bash
+rosrun gait_command gait_command_node 
+
+source devel_isolated/path_controler/setup.bash
+rosrun path_controler path_controler
+
 rosservice call /MediumSize/BodyHub/StateJump "masterID: 6
 > stateReq: ’setStatus’"
 

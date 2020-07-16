@@ -11,4 +11,8 @@ CTestTestfile.cmake
 devel_isolated/**
 build_isolated/**
 .vscode/**
-
+cor.bt
+pointcloud.pcd
+KeyFrameTrajector
+utils/ORBvoc.bin
+utils/ORBvoc.txt

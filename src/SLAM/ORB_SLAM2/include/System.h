@@ -32,6 +32,7 @@
 #include <boost/serialization/list.hpp>
 #include <boost/serialization/vector.hpp>
 
+#include "Observer.h"
 #include "Tracking.h"
 #include "FrameDrawer.h"
 #include "MapDrawer.h"
@@ -133,7 +134,8 @@ public:
     // It also decides when to insert a new keyframe, create some new MapPoints and
     // performs relocalization if tracking fails.
     Tracking* mpTracker;
-
+    MyPclMapping * pointmapping;
+    shared_ptr<PointCloudMapping> getMyPclMapping();
 private:
 
     // Input sensor
