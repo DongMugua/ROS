@@ -1,8 +1,7 @@
 SLAM部分
 ===========================
-@ 孙皓
-
-@ sh9339@163.com
+孙皓
+sh9339@163.com
 
 * Intel Realsense SDK2.0
 * ubuntu 16.04 LTS
