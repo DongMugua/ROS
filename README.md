@@ -1,6 +1,8 @@
 SLAM部分
 ===========================
 @ 孙皓
+@ sh9339@163.com
+
 * Intel Realsense SDK2.0
 * ubuntu 16.04 LTS
 * Intel® Core™ i7-5500U CPU @ 2.40GHz × 4 
